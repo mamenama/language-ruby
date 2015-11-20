@@ -615,3 +615,19 @@ describe "Ruby grammar", ->
   it "tokenizes a stabby lambda properly", ->
     {tokens} = grammar.tokenizeLine('method_name -> { puts "A message"} do')
     expect(tokens[1]).toEqual value: '->', scopes: ['source.ruby', 'support.function.kernel.ruby']
+
+  it "tokenizes an interpolated regex properly", ->
+    {tokens} = grammar.tokenizeLine('/#{foo}/')
+    expect(tokens[0]).toEqual value: '/', scopes: ['source.ruby', 'string.regexp.interpolated.ruby', 'punctuation.section.regexp.ruby']
+    expect(tokens[1]).toEqual value: '#{', scopes: ['source.ruby', 'string.regexp.interpolated.ruby', 'meta.embedded.line.ruby', 'punctuation.section.embedded.begin.ruby', 'source.ruby']
+    expect(tokens[2]).toEqual value: 'foo', scopes: ['source.ruby', 'string.regexp.interpolated.ruby', 'meta.embedded.line.ruby', 'source.ruby']
+    expect(tokens[tokens.length-2]).toEqual value: '}', scopes: ['source.ruby', 'string.regexp.interpolated.ruby', 'meta.embedded.line.ruby', 'punctuation.section.embedded.end.ruby', 'source.ruby']
+    expect(tokens[tokens.length-1]).toEqual value: '/', scopes: ['source.ruby', 'string.regexp.interpolated.ruby', 'punctuation.section.regexp.ruby']
+
+  it "tokenizes an interpolated regex with a nested regex properly", ->
+    {tokens} = grammar.tokenizeLine('/#{foo.gsub(/b/, "")}/')
+    expect(tokens[0]).toEqual value: '/', scopes: ['source.ruby', 'string.regexp.interpolated.ruby', 'punctuation.section.regexp.ruby']
+    expect(tokens[1]).toEqual value: '#{', scopes: ['source.ruby', 'string.regexp.interpolated.ruby', 'meta.embedded.line.ruby', 'punctuation.section.embedded.begin.ruby', 'source.ruby']
+    expect(tokens[2]).toEqual value: 'foo', scopes: ['source.ruby', 'string.regexp.interpolated.ruby', 'meta.embedded.line.ruby', 'source.ruby']
+    expect(tokens[tokens.length-2]).toEqual value: '}', scopes: ['source.ruby', 'string.regexp.interpolated.ruby', 'meta.embedded.line.ruby', 'punctuation.section.embedded.end.ruby', 'source.ruby']
+    expect(tokens[tokens.length-1]).toEqual value: '/', scopes: ['source.ruby', 'string.regexp.interpolated.ruby', 'punctuation.section.regexp.ruby']
